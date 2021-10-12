@@ -1,5 +1,8 @@
 # Cognito: The future of Parkinsons Detection
 
+##
+Devpost: https://devpost.com/software/cognito-bnup5t
+
 ## Note 1
 
 The AI model has 80% Accuracy which makes it more accurate than clinical diagnosis by someone who is not an expert. The model is often times more accurate than a real person!
