@@ -1,3 +1,4 @@
+#Import Statements
 import os, gc
 import pandas as pd
 import glob
@@ -7,6 +8,7 @@ from tensorflow.keras.models import Sequential, save_model, load_model
 import matplotlib.pyplot as plt
 import numpy as np
 
+#retrieve data
 user_file_list = os.listdir('../Hackathon4/Archived-Users/Archived users/')
 user_set_v1 = set(map(lambda x: x[5: 15], user_file_list))
 tappy_file_list = os.listdir('../Hackathon4/Archived_Data/Tappy Data/')
@@ -60,6 +62,7 @@ df = df[
     (df['Direction'] == 'SR') |
     (df['Direction'] == 'SS')
 ]
+#labels
 direction_group_df = df.groupby('Direction').mean()
 direction_group_df
 def read_tappy(file_name):
@@ -142,7 +145,7 @@ user_tappy_df.head()
 
 combined_user_df = pd.concat([user_df, user_tappy_df], axis=1)
 
-
+#Establish Dataframe & dataset
 combined_user_df['Female']=combined_user_df['Female'].astype(float)
 combined_user_df['Sided_Left']=combined_user_df['Sided_Left'].astype(float)
 combined_user_df['Sided_Right']=combined_user_df['Sided_Right'].astype(float)
@@ -156,13 +159,14 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
   ds = ds.batch(batch_size)
   return ds
 
+#Prediction dataset
 batch_size = 10
 run_ds = df_to_dataset(combined_user_df, batch_size=batch_size)
 
 
 
 
-
+#Run predictions
 
 predictions = model.predict(run_ds)
 print(predictions)
