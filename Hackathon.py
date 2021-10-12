@@ -38,35 +38,6 @@ groundTruth2_df['gt'] = groundTruth2_df['gt'].astype(int)
 groundTruth3_df['gt'] = groundTruth3_df['gt'].astype(int)
 all_data['gt'] = all_data['gt'].astype(int)
 
-#Add data into the ground truth dataframe
-#file_len = 3000
-#for file in all_data['file_1']:
-#    temp_file = pd.read_csv(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file)
-#    temp_file = temp_file.iloc[:300]
-#    temp_file['class'] = np.full(shape = 300, fill_value = all_data.loc[all_data.file_1 == file, 'gt'].values[0])
-#    temp_file.columns = ['key','press', 'duration', 'release', 'class']
-
-#    temp_file.to_csv(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file)
-
-#for file in all_data['file_1']:
-#    with open(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file, "a") as fp:
-#        wr = csv.writer(fp, dialect='excel')
-#        wr.writerow(np.array(['class', all_data.loc[all_data.file_1 == file, 'gt'].values[0], 0 , 0]))
-#for file in groundTruth1_df['file_1']:
-#    with open(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file, "a") as fp:
-#        wr = csv.writer(fp, dialect='excel')
-#        wr.writerow(np.array(['class', groundTruth1_df.loc[groundTruth1_df.file_1 == file, 'gt'].values[0]]))
-
-#for file in groundTruth2_df['file_1']:
-#    with open(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file, "a") as fp:
-#        wr = csv.writer(fp, dialect='excel')
-#        wr.writerow(np.array(['class', groundTruth2_df.loc[groundTruth2_df.file_1 == file, 'gt'].values[0]]))
-
-#for file in groundTruth3_df['file_1']:
-#    with open(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/'+ file, "a") as fp:
-#        wr = csv.writer(fp, dialect='excel')
-#        wr.writerow(np.array(['class', groundTruth3_df.loc[groundTruth3_df.file_1 == file, 'gt'].values[0]]))
-
 
 #split data into test & validation sets with 80/20 split
 data_files = glob.glob(r'C:/Users/anish_8d0sbo2/Hackathon3/neuroqwerty-mit-csxpd-dataset-1.0.0/data/MIT-CS1PD/*.csv')
@@ -74,7 +45,6 @@ dfs = []
 for filename in data_files:
     dfs.append(pd.read_csv(filename))
 one_file = pd.concat(dfs, ignore_index = True)
-
 print(one_file.sample(2))
 print (one_file.dtypes)
 print(one_file.sample(10))
@@ -87,6 +57,8 @@ train, val = train_test_split(train, test_size=0.2)
 print(len(train), 'train examples')
 print(len(val), 'validation examples')
 print(len(test), 'test examples')
+
+#create Dataframe & shuffle
 def df_to_dataset(dataframe, shuffle=True, batch_size=32):
   dataframe = dataframe.copy()
   labels = dataframe.pop('class')
@@ -96,7 +68,7 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
   ds = ds.batch(batch_size)
   return ds
 
-
+#Establish datasets & features
 batch_size = 10
 train_ds = df_to_dataset(train, batch_size=batch_size)
 val_ds = df_to_dataset(val, shuffle=False, batch_size=batch_size)
@@ -113,6 +85,7 @@ demo(release)
 
 feature_columns = []
 
+#Model
 print(one_file.columns)
 for header in ['press', 'duration', 'release']:
     print(feature_column.numeric_column(header))
@@ -126,9 +99,10 @@ model = tf.keras.Sequential([
   layers.Dense(1)
 ])
 
-
+#Model creation
 model.compile(optimizer='adam',loss = 'categorical_crossentropy', metrics=['accuracy'])
 
+#Saving checkpoints
 checkpoint_path = "training_1/cp.ckpt"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,verbose=1)
@@ -136,6 +110,7 @@ model.fit(train_ds, validation_data = val_ds, epochs = 5, callbacks = [cp_callba
 filepath = './saved_model'
 save_model(model, filepath)
 
+#Result
 loss, accuracy = model.evaluate(test_ds)
 print("Accuracy:", accuracy)
 
